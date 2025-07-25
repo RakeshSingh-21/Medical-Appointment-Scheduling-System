@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <title>Register</title>
+
+<script>
+    // Auto-hide flash messages after 3 seconds
+    setTimeout(() => {
+        const msg = document.getElementById("flash-message");
+        const err = document.getElementById("flash-error");
+        if (msg) msg.style.display = "none";
+        if (err) err.style.display = "none";
+    }, 3000);
+</script>
+
+
+</head>
+
+<body>
+    <div class="container">
+        {% if message %}
+    <div id="flash-message" class="alert alert-success">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <!-- Error Alert -->
+    {% if error %}
+    <div id="flash-error" class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+    <form action="/register" method="post">
+        <input name="name" placeholder="Name">
+        <input name="email" placeholder="Email">
+        <input name="password" type="password" placeholder="Password">
+        <select name="role">
+            <option value="patient">Patient</option>
+            <option value="doctor">Doctor</option>
+        </select>
+        <button type="submit">Register</button>
+    </form>
+</div>
+    </body>
+</body>
+
+</html>

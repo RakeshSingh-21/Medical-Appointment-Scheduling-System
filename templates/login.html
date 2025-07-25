@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
 </head>
-<body>
-    <form method="post" >
 
+<body>
+    <form action="/login" method="post">
+        <input name="email" placeholder="Email">
+        <input name="password" type="password" placeholder="Password">
+        <button type="submit">Login</button>
+        <p>Don't have an account? <a href="/register">Register here</a></p>
     </form>
+    
 </body>
+
 </html>
