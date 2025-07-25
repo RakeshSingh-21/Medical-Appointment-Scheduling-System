@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Success Message -->
+{% if success %}
+    <div class="success">{{ success }}</div>
+{% endif %}
+
+
+{% if user.role == "doctor" %}
+    <h3>Welcome to Doctor Dashboard</h3>
+    <p>Here you can manage appointments, view patient records, and update your availability.</p>
+{% elif user.role == "patient" %}
+    <h3>Welcome to Patient Dashboard</h3>
+{% else %}
+    <h3>Welcome to the Dashboard</h3>
+    <p>Your role is not recognized.</p>
+{% endif %}
+
+
+
+{% endblock %}

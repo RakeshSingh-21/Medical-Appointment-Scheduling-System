@@ -1,40 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block content %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
-    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
-    <title>Register</title>
-
-</head>
-
-<body> 
+<form action="/register" method="post">
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
     <h2>Register</h2>
-    <form action="/register" method="post">
-        {% if error %}
-        <div class="error-message">
-            {{ error }} 
-        </div>
-        {% endif %}
-        <input name="name" placeholder="Name">
-        <input name="email" placeholder="Email">
-        <input name="password" type="password" placeholder="Password">
-        <select name="role">
-            <option value="patient">Patient</option>
-            <option value="doctor">Doctor</option>
-        </select>
-        <button type="submit">Register</button>
-    </form>
-</div>
-<script>
-    window.onload = function () {
-        const errorBox = document.querySelector('.error-message');
-        if (errorBox) { setTimeout(() => { errorBox.style.display = 'none';}, 5000)};}
-</script>
+    <input name="name" placeholder="Name" required>
+    <input name="email" placeholder="Email" required>
+    <input name="password" type="password" placeholder="Password" required>
+    <input name="confirm_password" type="password" placeholder="Confirm Password" required>
+    <select name="role" required>
+        <option value="" disabled selected hidden>Role</option>
+        <option name="role" value="patient">Patient</option>
+        <option name="role" value="doctor">Doctor</option>
+    </select>
+    <button type="submit">Register</button>
+</form>
 
-</body>
 
-</html>
+{% endblock %}

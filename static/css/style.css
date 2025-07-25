@@ -14,6 +14,8 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    
+
 }
 
 /* Form container */
@@ -53,9 +55,11 @@ button:hover {
     background-color: #0056b3;
 }
 
+/* Heading styling */
 h2 {
     text-align: center;
     margin-bottom: 20px;
+   
 }
 
 .error-message {
@@ -67,3 +71,44 @@ h2 {
     margin-bottom: 15px;
     font-weight: bold;
 }
+
+.success-message {
+    background-color: #e6ffed;
+    color: #2e7d32;
+    padding: 10px;
+    border: 1px solid #2e7d32;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.success {
+    background-color: #e6ffed;
+    color: #2e7d32;
+    padding: 10px;
+    border: 1px solid #2e7d32;  
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+/* Wrapper for form and image */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1000px;
+    margin-left: 10px;
+}
+
+/* Image styling */
+.side-image {
+    width: 420px;
+    height: 550px;   
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    
+}
+
