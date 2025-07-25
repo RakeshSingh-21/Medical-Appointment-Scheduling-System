@@ -9,34 +9,16 @@
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
     <title>Register</title>
 
-<script>
-    // Auto-hide flash messages after 3 seconds
-    setTimeout(() => {
-        const msg = document.getElementById("flash-message");
-        const err = document.getElementById("flash-error");
-        if (msg) msg.style.display = "none";
-        if (err) err.style.display = "none";
-    }, 3000);
-</script>
-
-
 </head>
 
-<body>
-    <div class="container">
-        {% if message %}
-    <div id="flash-message" class="alert alert-success">
-        {{ message }}
-    </div>
-    {% endif %}
-
-    <!-- Error Alert -->
-    {% if error %}
-    <div id="flash-error" class="alert alert-danger">
-        {{ error }}
-    </div>
-    {% endif %}
+<body> 
+    <h2>Register</h2>
     <form action="/register" method="post">
+        {% if error %}
+        <div class="error-message">
+            {{ error }} 
+        </div>
+        {% endif %}
         <input name="name" placeholder="Name">
         <input name="email" placeholder="Email">
         <input name="password" type="password" placeholder="Password">
@@ -47,7 +29,12 @@
         <button type="submit">Register</button>
     </form>
 </div>
-    </body>
+<script>
+    window.onload = function () {
+        const errorBox = document.querySelector('.error-message');
+        if (errorBox) { setTimeout(() => { errorBox.style.display = 'none';}, 5000)};}
+</script>
+
 </body>
 
 </html>

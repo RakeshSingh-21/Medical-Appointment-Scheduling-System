@@ -46,7 +46,7 @@ async def register(request: Request,  name: str = Form(...),
     
     # ✅ Create a Pydantic model instance using form data
     user = UserCreate(name=name, email=email, password=password, role=role)
-    existing = db.query(User).filter(User.email== user.email).first()
+    existing = db.query(User).filter(User.email == user.email).first()
     if existing:
         return templates.TemplateResponse("register.html", {
             "request": request,
@@ -56,7 +56,7 @@ async def register(request: Request,  name: str = Form(...),
     new_user = User(name = user.name, email=user.email, password_hash = hashed_pw, role=user.role)
     db.add(new_user)
     db.commit()
-    return templates.TemplateResponse("register.html",{"request": request, "message": "User registered successfully!"})
+    return templates.TemplateResponse("register.html",{"request": request, "error": "User registered successfully!"})
 
 
 @app.post("/login", response_class=HTMLResponse)
