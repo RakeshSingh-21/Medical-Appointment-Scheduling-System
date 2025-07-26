@@ -1,22 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- Success Message -->
-{% if success %}
-    <div class="success">{{ success }}</div>
-{% endif %}
 
+<!-- 🔷 Navbar -->
+<nav style="background-color: #007BFF; color: white; padding: 10px;">
+    <strong>{{ user.role | capitalize }} Dashboard</strong>
+</nav>
 
-{% if user.role == "doctor" %}
-    <h3>Welcome to Doctor Dashboard</h3>
-    <p>Here you can manage appointments, view patient records, and update your availability.</p>
-{% elif user.role == "patient" %}
-    <h3>Welcome to Patient Dashboard</h3>
-{% else %}
-    <h3>Welcome to the Dashboard</h3>
-    <p>Your role is not recognized.</p>
-{% endif %}
+<!-- 🧭 Sidebar + Content Layout -->
+<div style="display: flex; min-height: 80vh;">
 
+    <!-- 🧱 Sidebar -->
+    <aside style="width: 250px; background-color: #f0f0f0; padding: 20px;">
+        <h4>Navigation</h4>
+        <ul style="list-style-type: none; padding-left: 0;">
+            {% if user.role == "doctor" %}
+                <li><a href="/doctor/schedule">Doctor Schedule Management</a></li>
+                <li><a href="/appointments">View Upcoming Appointments</a></li>
+            {% elif user.role == "patient" %}
+                <li><a href="/book">Book Appointment</a></li>
+                <li><a href="/cancel">Cancel Appointment</a></li>
+                <li><a href="/reschedule">Reschedule Appointment</a></li>
+            {% endif %}
+        </ul>
+    </aside>    
 
+ <!-- 🗂️ Main Content -->
+    <main style="flex-grow: 1; padding: 20px;">
+        {% if success %}
+            <div style="color: green; font-weight: bold;">{{ success }}</div>
+        {% endif %}
+
+        {% if user.role == "doctor" %}
+            <h3>Welcome to Doctor Dashboard</h3>
+            <p>Here you can manage appointments, view patient records, and update your availability.</p>
+        {% elif user.role == "patient" %}
+            <h3>Welcome to Patient Dashboard</h3>
+            <p>You can browse doctors, book appointments, and manage your bookings.</p>
+        {% else %}
+            <h3>Welcome to the Dashboard</h3>
+            <p>Your role is not recognized.</p>
+        {% endif %}
+
+        <p><a href="/logout">Logout</a></p>
+    </main>
+</div>
 
 {% endblock %}

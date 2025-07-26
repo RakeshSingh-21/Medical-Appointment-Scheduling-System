@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Add Schedule{% endblock %}
+{% block content %}
+<h2>Add Doctor Schedule</h2>
+<form method="post" action="/doctor/schedule">
+    <label>Date:</label>
+    <input type="date" name="date" required>
+    <label>Start Time:</label>
+    <input type="time" name="start_time" required>
+    <label>End Time:</label>
+    <input type="time" name="end_time" required>
+    <button type="submit">Save</button>
+</form>
+{% endblock %}
