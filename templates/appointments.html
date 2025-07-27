@@ -1,0 +1,70 @@
+{% extends "base1.html" %}
+{% block content %}
+<h3>Upcoming Appointments</h3>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            {% if user.role == "doctor" %}
+            <th>Actions</th>
+            {% elif user.role == "patient" %}
+            <th>Actions</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for appt in appointments %}
+        <tr>
+            <td>{{ appt.patient_name }}</td>
+            <td>{{ appt.doctor_name }}</td>
+            <td>{{ appt.date }}</td>
+            <td>{{ appt.time }}</td>
+            <td>
+                {% if appt.status == 'confirmed' %}
+                <span class="badge bg-success">Confirmed</span>
+                {% elif appt.status == 'cancelled' %}
+                <span class="badge bg-danger">Cancelled</span>
+                {% else %}
+                <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if user.role == "doctor" %}
+                </form>{% if appt.status == "pending" %}
+                <form method="post" action="/appointments/{{ appt.id }}/confirm" style="display:inline;">
+                    <button class="btn btn-sm btn-success">Confirm</button>
+                </form>
+                <form method="post" action="/appointments/{{ appt.id }}/cancel" style="display:inline;">
+                    <button class="btn btn-sm btn-danger">Cancel</button>
+                </form>
+                {% elif appt.status == "confirmed" %}
+                <form method="post" action="/appointments/{{ appt.id }}/cancel" style="display:inline;">
+                    <button class="btn btn-sm btn-danger">Cancel</button>
+                </form>
+                {% elif appt.status == "cancelled" %}
+                <form method="post" action="/appointments/{{ appt.id }}/confirm" style="display:inline;">
+                    <button class="btn btn-sm btn-success">Confirm</button>
+                </form>
+                {% endif %}
+                {% elif user.role == "patient" %}
+                {% if appt.status != 'cancelled' %}
+                <a href="/appointment/reschedule" class="btn btn-sm btn-primary">Reschedule</a>
+                {% else %}
+                <span class="text-muted">No Action</span>
+                {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4" class="text-center">No appointments found</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</form>
+{% endblock %}

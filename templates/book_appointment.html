@@ -1,14 +1,30 @@
-{% extends "base.html" %}
-{% block title %}Book Appointment{% endblock %}
+{% extends "base1.html" %}
 {% block content %}
-<h2>Book Appointment</h2>
-<form method="post" action="/appointments">
-    <label>Doctor ID:</label>
-    <input type="number" name="doctor_id" required>
-    <label>Date:</label>
-    <input type="date" name="date" required>
-    <label>Time:</label>
-    <input type="time" name="time" required>
-    <button type="submit">Book</button>
+<h3>{{ action }} Appointment</h3>
+<form method="post" action="/appointment/{{ action | lower }}">
+    {% if action != "Cancel" %}
+    <div class="mb-3">
+        <label>Choose Doctor</label>
+        <select name="doctor_id" class="form-select">
+            {% for doctor in doctors %}
+                <option value="{{ doctor.id }}">{{ doctor.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Select Date</label>
+        <input type="date" name="date" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Time Slot</label>
+        <input type="time" name="slot" class="form-control" required />
+    </div>
+    {% else %}
+    <div class="mb-3">
+        <label>Appointment ID</label>
+        <input type="text" name="appointment_id" class="form-control" required />
+    </div>
+    {% endif %}
+    <button class="btn btn-success">{{ action }}</button>
 </form>
 {% endblock %}

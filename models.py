@@ -38,7 +38,7 @@ class Appointment(Base):
     patient_id = Column(Integer, ForeignKey("users.id"))
     doctor_id = Column(Integer, ForeignKey("users.id"))
     date = Column(Date, nullable=False)
-    time = Column(Date, nullable=True) 
+    time = Column(Time, nullable=True) 
     status = Column(String(50), nullable=False) #e.g., "pending", "confirmed", "cancelled"
     
     patient = relationship("User", back_populates="appointments", foreign_keys=[patient_id])
