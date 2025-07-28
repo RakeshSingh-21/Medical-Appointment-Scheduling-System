@@ -41,7 +41,7 @@ def get_db():
 #For Creating current user
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     token = request.cookies.get("access_token")
-    print(token,'etyhrtenfhefdnbghgchgc')
+    print(token, "hjdnsdhsd☻222x2222e2d2s2d2x")
     if not token:
         raise HTTPException(status_code=401, detail="Token missing")
 
@@ -90,7 +90,6 @@ async def register(request: Request,  name: str = Form(...),
             "request": request,
             "error": "Passwords do not match!"
         })
-
     
     # ✅ Create a Pydantic model instance using form data
     user = UserCreate(name=name, email=email, password=password, role=role)
@@ -101,7 +100,9 @@ async def register(request: Request,  name: str = Form(...),
             "error": "Email already registered!"
         })
     hashed_pw = hash_password(user.password)
-    new_user = User(name = user.name, email=user.email, password_hash = hashed_pw, role=user.role)
+    prefix = "Dr." if user.role == "doctor" else "Pt." if user.role == "patient" else ""
+    formatted_name = f"{prefix} {user.name}"
+    new_user = User(name = formatted_name, email=user.email, password_hash = hashed_pw, role=user.role)
     db.add(new_user)
     db.commit()
     
@@ -127,24 +128,40 @@ async def login(request: Request,
     if not db_user or not verify_password(user.password, db_user.password_hash):
         return templates.TemplateResponse("login.html",{"request": request, "error": "Invalid Credentials"})
     token = create_token({"sub": db_user.email})
-    response = templates.TemplateResponse("dashboard.html", {"request": request, "user": db_user, "error": "Invalid Credentials"})
+    response = RedirectResponse(url="/dashboard", status_code=303)
     response.set_cookie(key="access_token", value=token, httponly=True, secure=False)  # Use secure=True in production
     return response
-    # print(token,'ueywewhdhehjer')
-    # print(db_user.email,"wudhudyuhdjydudhydchgcgchbc")
-    
-    # return {"access_token": token, "token_type": "bearer"}
-    # return templates.TemplateResponse("dashboard.html",{"request": request, "user": db_user, "success": "Login successful!"})
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request,db: Session = Depends(get_db)):
-    # token = request.cookies.get("access_token")
-    # if not token:
-    #     return RedirectResponse("/login")
     user = get_current_user(request,db)
-    
-    return templates.TemplateResponse("dashboard.html",{"request": request, "user": user,"success": "Login successful!"})
+    context = {
+        "request": request,
+        "user": user,
+        "success": "Login successful!"
+    }
+
+    if user.role == "doctor":
+        context.update({
+            "total_patients": db.query(Appointment).count(),
+            "confirmed_bookings": db.query(Appointment)
+                .filter(Appointment.doctor_id == user.id, Appointment.status == "confirmed")
+                .count(),
+            "upcoming_appointments": db.query(User.name.label("patient_name"),Appointment.date, Appointment.time, Appointment.status).join(User, User.id == Appointment.patient_id).filter(Appointment.doctor_id == user.id, Appointment.status == "confirmed").all()
+        })
+
+    elif user.role == "patient":
+        context.update({
+            "my_bookings": db.query(Appointment)
+                .filter(Appointment.patient_id == user.id)
+                .order_by(Appointment.date.desc())
+                .limit(5)
+                .all()
+        })
+
+    return templates.TemplateResponse("dashboard.html", context)
+           
 
 @app.get("/doctor/schedule", response_class=HTMLResponse)
 def schedule_form(request:Request):
@@ -174,43 +191,7 @@ def schedule_post(
     db.commit()
     return RedirectResponse("/dashboard", status_code=303)
     
-        
-# @app.get("/appointments", response_class=HTMLResponse)
-# def appointment_form(request: Request):
-#     return templates.TemplateResponse("book_appointment.html", {"request": request})
-
-# @app.post("/appointments")
-# def appointment_post(
-#     request: Request,
-#     doctor_id: int = Form(...),
-#     date: str = Form(...),
-#     time: str = Form(...),
-#     db: Session = Depends(get_db)
-# ):
-#     token = request.cookies.get("access_token")
-#     current_user = get_current_user(token, db)
-#     if current_user.role != "patient":
-#         raise HTTPException(status_code=403, detail="Not authorized")
-
-#     schedule = db.query(DoctorSchedule).filter(
-#         DoctorSchedule.doctor_id == doctor_id,
-#         DoctorSchedule.date == datetime.strptime(date, "%Y-%m-%d").date()
-#     ).first()
-
-#     if not schedule:
-#         return templates.TemplateResponse("book_appointment.html", {"request": request, "msg": "Doctor not available"})
-
-#     new_appointment = Appointment(
-#         patient_id=current_user.id,
-#         doctor_id=doctor_id,
-#         date=datetime.strptime(date, "%Y-%m-%d").date(),
-#         time=datetime.strptime(time, "%H:%M").time(),
-#         status="booked"
-#     )
-#     db.add(new_appointment)
-#     db.commit()
-#     return RedirectResponse("/dashboard", status_code=303)  
-
+    
 
 @app.get("/appointment/{action}")
 def appointment_form(
@@ -340,4 +321,4 @@ def cancel_appointment(appointment_id: int, request: Request, db: Session = Depe
 
 @app.get("/logout")
 def logout(request: Request, db: Session= Depends(get_db)):
-    return templates.TemplateResponse("login.html",{"request": request})
+    return RedirectResponse(url="/login", status_code=303)

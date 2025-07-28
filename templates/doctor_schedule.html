@@ -1,7 +1,8 @@
 {% extends "base1.html" %}
 {% block content %}
+<nav style="display: none" ></nav>
 <h3>Doctor Schedule Management</h3>
-<form method="POST" action="/doctor/schedule">
+<form method="post" action="/doctor/schedule">
     <div class="mb-3">
         <label for="date">Available Date</label>
         <input type="date" name="date" class="form-control" required />

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Medical Appointment System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style1.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">     
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -12,7 +13,7 @@
             <div>
                 {% if user %}
                     <span class="text-white me-3">Hello, {{ user.name }}</span>
-                    <a href="/logout" class="btn btn-light btn-sm">Logout</a>
+                    
                 {% endif %}
             </div>
         </div>
@@ -22,5 +23,8 @@
         {% block content %}
         {% endblock %}
     </div>
+
+
+
 </body>
 </html>

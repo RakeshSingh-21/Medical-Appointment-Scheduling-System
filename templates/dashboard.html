@@ -1,24 +1,91 @@
 {% extends "base1.html" %}
 {% block content %}
-<div class="row">
-    <div class="col-md-3">
-        <div class="list-group">
-            <h5 class="list-group-item active">Menu</h5>
-            {% if user.role == "doctor" %}
-                <a href="/doctor/schedule" class="list-group-item">Manage Schedule</a>
-                <a href="/appointments" class="list-group-item">View Appointments</a>
-            {% elif user.role == "patient" %}
-                <a href="/appointment/book" class="list-group-item">Book Appointment</a>
-                <a href="/appointment/cancel" class="list-group-item">Cancel Appointment</a>
-                <a href="/appointment/reschedule" class="list-group-item">Reschedule Appointment</a>
-                <a href="/appointments" class="list-group-item">View Appointments</a>
-            {% endif %}
-        </div>
+
+<div class="container-fluid">
+    <!-- Sidebar -->
+    <div class="col-md-3 sidebar">
+        <h5 class="list-group-item active">Dashboard</h5>
+        {% if user.role == "doctor" %}
+        <a href="#" class="list-group-item" onclick="loadContent('/doctor/schedule')">Manage Schedule</a>
+        <a href="#" class="list-group-item" onclick="loadContent('/appointments')">View Appointments</a>
+        <a href="/logout" class="list-group">Logout</a>
+        {% elif user.role == "patient" %}
+        <a href="#" class="list-group-item" onclick="loadContent('/appointment/book')">Book Appointment</a>
+        <a href="#" class="list-group-item" onclick="loadContent('/appointment/cancel')">Cancel Appointment</a>
+        <a href="#" class="list-group-item" onclick="loadContent('/appointment/reschedule')">Reschedule Appointment</a>
+        <a href="#" class="list-group-item" onclick="loadContent('/appointments')">View Appointments</a>
+        <a href="/logout" class="list-group1">Logout</a>
+        {% endif %}
+       
     </div>
 
-    <div class="col-md-9">
-        <h3>Welcome {{ user.role | capitalize }}</h3>
-        <p class="lead">Use the menu to manage your appointments or schedule.</p>
+    <!-- Main Dashboard -->
+    <div class="col-md-9 main-content" id="main-content">
+        {% if user.role == "doctor" %}
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Patients</h5>
+                        <p class="card-text">{{ total_patients }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Confirmed Bookings</h5>
+                        <p class="card-text">{{ confirmed_bookings }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4>Upcoming Appointments</h4>
+        <table class="table table-bordered text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in upcoming_appointments %}
+                <tr>
+                    <td>{{ appt.patient_name }}</td>
+                    <td>{{ appt.date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ appt.time }}</td>
+                    <td>{{ appt.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        window.loadContent = function (url) {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network error");
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById("main-content").innerHTML = html;
+
+                    // Update the browser URL without reload
+                    window.history.pushState(null, '', url);
+                })
+                .catch(error => {
+                    console.error("Failed to load content:", error);
+                    document.getElementById("main-content").innerHTML = "<p>Error loading content.</p>";
+                });
+        };
+    });
+</script>
+
 {% endblock %}
