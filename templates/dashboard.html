@@ -3,7 +3,7 @@
 
 <div class="container-fluid">
     <!-- Sidebar -->
-    <div class="col-md-3 sidebar">
+    <!-- <div class="col-md-3 sidebar">
         <h5 class="list-group-item active">Dashboard</h5>
         {% if user.role == "doctor" %}
         <a href="#" class="list-group-item" onclick="loadContent('/doctor/schedule')">Manage Schedule</a>
@@ -17,7 +17,7 @@
         <a href="/logout" class="list-group1">Logout</a>
         {% endif %}
        
-    </div>
+    </div> -->
 
     <!-- Main Dashboard -->
     <div class="col-md-9 main-content" id="main-content">
@@ -66,7 +66,7 @@
     </div>
 </div>
 
-<script>
+<!-- <script>
     document.addEventListener("DOMContentLoaded", function () {
         window.loadContent = function (url) {
             fetch(url)
@@ -86,6 +86,6 @@
                 });
         };
     });
-</script>
+</script> -->
 
 {% endblock %}

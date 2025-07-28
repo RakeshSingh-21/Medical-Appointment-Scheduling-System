@@ -4,18 +4,6 @@ body {
     background-color: #f8f9fa;
 }
 
-.sidebar {
-    position: fixed;
-    top: 56px; /* Adjust if navbar height changes */
-    left: 0;
-    max-width: 200px;
-    height: calc(100vh - 56px); /* fills the viewport below navbar */
-    background-color: #ffffff;
-    border-right: 1px solid #dee2e6;
-    padding: 20px;
-    z-index: 1000;
-    overflow-y: auto;
-}
 
 .list-group-item {
     border: none;
