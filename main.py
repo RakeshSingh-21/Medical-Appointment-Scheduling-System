@@ -153,13 +153,11 @@ async def dashboard(request: Request,db: Session = Depends(get_db)):
 
     elif user.role == "patient":
         context.update({
-            "my_bookings": db.query(Appointment)
-                .filter(Appointment.patient_id == user.id)
-                .order_by(Appointment.date.desc())
-                .limit(5)
-                .all()
+            "my_bookings": db.query(Appointment).filter(Appointment.patient_id == user.id,Appointment.status == "confirmed").count(),
+            "confirmed_appointments": db.query(User.name.label("doctor_name"),Appointment.date, Appointment.time, Appointment.status).join(User, User.id == Appointment.doctor_id).filter(Appointment.patient_id == user.id, Appointment.status == "confirmed").all(),
+            "cancel_bookings": db.query(Appointment).filter(Appointment.patient_id == user.id,Appointment.status == "cancelled").count(),
+                
         })
-
     return templates.TemplateResponse("dashboard.html", context)
            
 
@@ -270,7 +268,7 @@ def view_appointments(request: Request, db: Session = Depends(get_db)):
             "request": request,
             "appointments": [{"id": a.id, "patient_name": a.patient_name, "doctor_name": user.name, "date": a.date, "time": a.time, "status": a.status} for a in appointments], "user": user
         })
-
+        
     elif user.role == "patient":
         appointments = (
             db.query(Appointment)
@@ -317,6 +315,14 @@ def cancel_appointment(appointment_id: int, request: Request, db: Session = Depe
     appt.status = "cancelled"
     db.commit()
     return RedirectResponse("/appointments", status_code=303)
+
+
+
+@app.get("/view/schedule", response_class=HTMLResponse)
+def doctor_schedule(request:Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    scheduled = db.query(DoctorSchedule).filter(DoctorSchedule.doctor_id == user.id).all()
+    return templates.TemplateResponse("view_schedule.html", {"request": request, "user": user, "scheduled": scheduled})
 
 
 @app.get("/logout")

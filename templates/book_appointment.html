@@ -1,30 +1,30 @@
-{% extends "base1.html" %}
-{% block content %}
-<h3>{{ action }} Appointment</h3>
-<form method="post" action="/appointment/{{ action | lower }}">
-    {% if action != "Cancel" %}
-    <div class="mb-3">
-        <label>Choose Doctor</label>
-        <select name="doctor_id" class="form-select">
-            {% for doctor in doctors %}
+<h1 class="page-title">{{ action }} Appointment</h1>
+<div class="page-content">
+    <!-- <h3>{{ action }} Appointment</h3> -->
+    <form method="post" action="/appointment/{{ action | lower }}">
+        {% if action != "Cancel" %}
+        <div class="mb-3">
+            <label>Choose Doctor</label>
+            <select name="doctor_id" class="form-select">
+                {% for doctor in doctors %}
                 <option value="{{ doctor.id }}">{{ doctor.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="mb-3">
-        <label>Select Date</label>
-        <input type="date" name="date" class="form-control" required />
-    </div>
-    <div class="mb-3">
-        <label>Time Slot</label>
-        <input type="time" name="slot" class="form-control" required />
-    </div>
-    {% else %}
-    <div class="mb-3">
-        <label>Appointment ID</label>
-        <input type="text" name="appointment_id" class="form-control" required />
-    </div>
-    {% endif %}
-    <button class="btn btn-success">{{ action }}</button>
-</form>
-{% endblock %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Select Date</label>
+            <input type="date" name="date" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label>Time Slot</label>
+            <input type="time" name="slot" class="form-control" required />
+        </div>
+        {% else %}
+        <div class="mb-3">
+            <label>Appointment ID</label>
+            <input type="text" name="appointment_id" class="form-control" required />
+        </div>
+        {% endif %}
+        <button class="btn btn-success">{{ action }}</button>
+    </form>
+</div>

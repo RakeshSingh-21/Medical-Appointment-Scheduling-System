@@ -1,20 +1,19 @@
-{% extends "base1.html" %}
-{% block content %}
-<nav style="display: none" ></nav>
-<h3>Doctor Schedule Management</h3>
-<form method="post" action="/doctor/schedule">
-    <div class="mb-3">
-        <label for="date">Available Date</label>
-        <input type="date" name="date" class="form-control" required />
-    </div>
-    <div class="mb-3">
-        <label for="start_time">Start Time</label>
-        <input type="time" name="start_time" class="form-control" required />
-    </div>
-    <div class="mb-3">
-        <label for="end_time">End Time</label>
-        <input type="time" name="end_time" class="form-control" required />
-    </div>
-    <button type="submit" class="btn btn-primary">Save Schedule</button>
-</form>
-{% endblock %}
+
+<h1 class="page-title">Doctor Schedule Management</h1>
+<div class="page-content">
+            <form method="post" action="/doctor/schedule">
+                <div class="mb-3">
+                    <label for="date">Available Date</label>
+                    <input type="date" name="date" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label for="start_time">Start Time</label>
+                    <input type="time" name="start_time" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label for="end_time">End Time</label>
+                    <input type="time" name="end_time" class="form-control" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Save Schedule</button>
+            </form>
+</div>

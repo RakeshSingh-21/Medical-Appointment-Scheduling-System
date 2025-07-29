@@ -1,91 +1,550 @@
-{% extends "base1.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
 
-<div class="container-fluid">
-    <!-- Sidebar -->
-    <!-- <div class="col-md-3 sidebar">
-        <h5 class="list-group-item active">Dashboard</h5>
-        {% if user.role == "doctor" %}
-        <a href="#" class="list-group-item" onclick="loadContent('/doctor/schedule')">Manage Schedule</a>
-        <a href="#" class="list-group-item" onclick="loadContent('/appointments')">View Appointments</a>
-        <a href="/logout" class="list-group">Logout</a>
-        {% elif user.role == "patient" %}
-        <a href="#" class="list-group-item" onclick="loadContent('/appointment/book')">Book Appointment</a>
-        <a href="#" class="list-group-item" onclick="loadContent('/appointment/cancel')">Cancel Appointment</a>
-        <a href="#" class="list-group-item" onclick="loadContent('/appointment/reschedule')">Reschedule Appointment</a>
-        <a href="#" class="list-group-item" onclick="loadContent('/appointments')">View Appointments</a>
-        <a href="/logout" class="list-group1">Logout</a>
-        {% endif %}
-       
-    </div> -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --sidebar-width: 250px;
+            --transition-speed: 0.3s;
+        }
 
-    <!-- Main Dashboard -->
-    <div class="col-md-9 main-content" id="main-content">
-        {% if user.role == "doctor" %}
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card bg-info text-white">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Total Patients</h5>
-                        <p class="card-text">{{ total_patients }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card bg-success text-white">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Confirmed Bookings</h5>
-                        <p class="card-text">{{ confirmed_bookings }}</p>
-                    </div>
-                </div>
-            </div>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .navbar-user {
+            margin-left: auto;
+            /* Push the user greeting to the right */
+            color: white;
+            /* Text color */
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background-color: var(--dark-color);
+            color: white;
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translateX(-100%);
+            transition: transform var(--transition-speed) ease;
+            z-index: 999;
+            padding-top: 70px;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color var(--transition-speed);
+        }
+
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-item.active {
+            background-color: var(--primary-color);
+        }
+
+        .sidebar-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Main Content Styles */
+        .content {
+            margin-left: 0;
+            margin-top: 70px;
+            padding: 2rem;
+            min-height: calc(100vh - 70px);
+            transition: margin-left var(--transition-speed);
+        }
+
+        .content.active {
+            margin-left: var(--sidebar-width);
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-title {
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .page-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            min-height: 300px;
+        }
+
+        /* Card Styles */
+        .card {
+            border: none;
+            /* Remove default border */
+            border-radius: 8px;
+            /* Rounded corners */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow for depth */
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            /* Font size for card titles */
+            margin-bottom: 0.5rem;
+            /* Space below the title */
+        }
+
+        .card-text {
+            font-size: 2rem;
+            /* Larger font size for the patient count */
+            font-weight: bold;
+            /* Bold text for emphasis */
+        }
+
+        /* Row Styles */
+        .row {
+            margin-bottom: 1.5rem;
+            /* Space between rows */
+        }
+
+        /* Table Styles */
+        .table {
+            width: 100%;
+            /* Full width */
+            margin-top: 1.5rem;
+            /* Space above the table */
+            border-collapse: collapse;
+            /* Collapse borders */
+        }
+
+        .table-light {
+            background-color: #f8f9fa;
+            /* Light background for the table header */
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            /* Padding for table cells */
+            text-align: center;
+            /* Center text in cells */
+            border: 1px solid #dee2e6;
+            /* Border for table cells */
+        }
+
+        .table th {
+            background-color: #e9ecef;
+            /* Light gray background for header */
+            font-weight: bold;
+            /* Bold text for header */
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
+            /* Highlight row on hover */
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .menu-btn {
+                display: block;
+            }
+
+            .content.active {
+                margin-left: 0;
+            }
+
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 998;
+                display: none;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .card {
+                margin-bottom: 1rem;
+                /* Space below cards on small screens */
+            }
+        }
+
+        @media (min-width: 769px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: var(--sidebar-width);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/65f08e41-60d5-4ad4-b4dd-4f424b238f88.png"
+                alt="Company logo with abstract geometric design in blue and white colors" />
+            <span>HealthCare+</span>
         </div>
+        <div class="navbar-user">
+            {% if user %}
+            <span>Hello, {{ user.name }}</span>
+            {% endif %}
+        </div>
+        <!-- <button class="menu-btn" id="menuBtn">☰</button> -->
+    </nav>
 
-        <h4>Upcoming Appointments</h4>
-        <table class="table table-bordered text-center">
-            <thead class="table-light">
-                <tr>
-                    <th>Patient Name</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for appt in upcoming_appointments %}
-                <tr>
-                    <td>{{ appt.patient_name }}</td>
-                    <td>{{ appt.date.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ appt.time }}</td>
-                    <td>{{ appt.status }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item active" data-page="dashboard">
+                <a href="dashboard" class="sidebar-link">
+                    <span class="sidebar-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            {% if user.role == "doctor" %}
+            <li class="sidebar-item" data-page="manage_schedule">
+                <a href="#" class="sidebar-link">
+                    <span class="sidebar-icon">ℹ️</span>
+                    <span>Manage Schedule</span>
+                </a>
+            </li>
+            <li class="sidebar-item" data-page="view_schedule">
+                <a href="/view/schedule" class="sidebar-link">
+                    <span class="sidebar-icon">ℹ️</span>
+                    <span>View Schedule</span>
+                </a>
+            </li>
+            {% elif user.role == "patient" %}
+            <li class="sidebar-item" data-page="book_appointment">
+                <a href="/appointment/book" class="sidebar-link">
+                    <span class="sidebar-icon">🎨</span>
+                    <span>Book Appointment</span>
+                </a>
+            </li>
+            <li class="sidebar-item" data-page="cancel_appointment">
+                <a href="/appointment/cancel" class="sidebar-link">
+                    <span class="sidebar-icon">📧</span>
+                    <span>Cancel Appointment</span>
+                </a>
+            </li>
+            <li class="sidebar-item" data-page="reschedule_appointment">
+                <a href="/appointment/reschedule" class="sidebar-link">
+                    <span class="sidebar-icon">📧</span>
+                    <span>Reschudle Appointment</span>
+                </a>
+            </li>
+            {% endif %}
+            <li class="sidebar-item" data-page="view_appointment">
+                <a href="/appointments" class="sidebar-link">
+                    <span class="sidebar-icon">🛠️</span>
+                    <span>View Appointment</span>
+                </a>
+            </li>
+        </ul>
+        {% if user.role == "doctor" %}
+        <div class="sidebar-item" style="margin-top: 285px;">
+            <a href="/logout" class="sidebar-link">
+                <span class="sidebar-icon">🚪</span>
+                <span>Logout</span>
+            </a>
+        </div>
+        {% elif user.role == "patient" %}
+        <div class="sidebar-item" style="margin-top: 215px;">
+            <a href="/logout" class="sidebar-link">
+                <span class="sidebar-icon">🚪</span>
+                <span>Logout</span>
+            </a>
+        </div>
         {% endif %}
     </div>
-</div>
 
-<!-- <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        window.loadContent = function (url) {
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) throw new Error("Network error");
-                    return response.text();
-                })
-                .then(html => {
-                    document.getElementById("main-content").innerHTML = html;
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay"></div>
 
-                    // Update the browser URL without reload
-                    window.history.pushState(null, '', url);
-                })
-                .catch(error => {
-                    console.error("Failed to load content:", error);
-                    document.getElementById("main-content").innerHTML = "<p>Error loading content.</p>";
+    <!-- Main Content -->
+    <main class="content" id="mainContent">
+        <div class="page active" id="dashboard">
+            <h1 class="page-title">Dashboard</h1>
+            <div class="page-content">
+                <!-- Main Dashboard -->
+                <!-- <div class="col-md-9 main-content" id="main-content"> -->
+                {% if user.role == "doctor" %}
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Total Patients</h5>
+                                <p class="card-text">{{ total_patients }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Confirmed Bookings</h5>
+                                <p class="card-text">{{ confirmed_bookings }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4>Upcoming Appointments</h4>
+                <table class="table table-bordered text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in upcoming_appointments %}
+                        <tr>
+                            <td>{{ appt.patient_name }}</td>
+                            <td>{{ appt.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ appt.time }}</td>
+                            <td>{{ appt.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% elif user.role == "patient" %}
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Cancel Appointment</h5>
+                                <p class="card-text">{{ cancel_bookings }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Confirmed Bookings</h5>
+                                <p class="card-text">{{ my_bookings }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4>Confirmed Appointment by Doctor</h4>
+                <table class="table table-bordered text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Doctor Name</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in confirmed_appointments %}
+                        <tr>
+                            <td>{{ appt.doctor_name }}</td>
+                            <td>{{ appt.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ appt.time }}</td>
+                            <td>{{ appt.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+        </div>
+        </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuBtn = document.getElementById('menuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            // const pages = document.querySelectorAll('.page');
+
+            // Toggle sidebar on mobile
+            menuBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            // Close sidebar when clicking on overlay
+            overlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Handle sidebar item clicks
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', function () {
+                    console.log("Clicked on:", this.getAttribute('data-page')); // Debug log
+                    // Remove active class from all items
+                    sidebarItems.forEach(i => i.classList.remove('active'));
+
+                    // Add active class to clicked item
+                    this.classList.add('active');
+
+                    // Get the page to show
+                    const pageId = this.getAttribute('data-page');
+                    loadPage(pageId);
+
+                    // // Hide all pages
+                    pages.forEach(page => page.classList.remove('active'));
+
+                    // Show the selected page
+                    document.getElementById(pageId).classList.add('active');
+
+                    // Close sidebar on mobile
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                    }
                 });
-        };
-    });
-</script> -->
+            });
 
-{% endblock %}
+
+            function loadPage(pageId) {
+                console.log("dyusydysudyuyhxcjyyuycy")
+                const pageMap = {
+                    // 'dashboard': '/dashboard',
+                    'manage_schedule': '/doctor/schedule',
+                    'view_schedule': '/view/schedule',
+                    'book_appointment': '/appointment/book',
+                    'cancel_appointment': '/appointment/cancel',
+                    'reschedule_appointment': '/appointment/reschedule',
+                    'view_appointment': '/appointments',
+
+                };
+                const pageUrl = pageMap[pageId];
+                if (pageUrl) {
+                    fetch(pageUrl)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            mainContent.innerHTML = html;
+                        })
+                        .catch(error => {
+                            console.error('There was a problem with the fetch operation:', error);
+                        });
+                }
+            }
+        });
+
+
+    </script>
+</body>
+
+</html>
