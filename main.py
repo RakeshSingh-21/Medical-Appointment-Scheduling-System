@@ -41,7 +41,6 @@ def get_db():
 #For Creating current user
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     token = request.cookies.get("access_token")
-    print(token, "hjdnsdhsd☻222x2222e2d2s2d2x")
     if not token:
         raise HTTPException(status_code=401, detail="Token missing")
 
@@ -336,7 +335,6 @@ def view_appointments(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/appointments/{appointment_id}/confirm")
 def confirm_appointment(appointment_id: int, request: Request, db: Session = Depends(get_db)):
-    print(f"Confirming appointment ID: {appointment_id}") 
     user = get_current_user(request, db)
     if user.role != "doctor":
         raise HTTPException(status_code=403, detail="Only doctors can confirm appointments")
