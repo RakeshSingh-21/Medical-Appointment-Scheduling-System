@@ -71,11 +71,11 @@ async def auth_exception_handler(request: Request, exc: HTTPException):
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    return templates.TemplateResponse(request=request, name="login.html")
+    return templates.TemplateResponse(request,"login.html",{})
 
 @app.get("/register", response_class=HTMLResponse)
 async def register_form(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request})
+    return templates.TemplateResponse(request,"register.html",{})
 
 
 @app.post("/register", response_class=HTMLResponse)
@@ -86,8 +86,7 @@ async def register(request: Request,  name: str = Form(...),
     role: str = Form(...), db: Session = Depends(get_db)):
 
     if password != confirm_password:
-        return templates.TemplateResponse("register.html", {
-            "request": request,
+        return templates.TemplateResponse(request,"register.html", {
             "error": "Passwords do not match!"
         })
     
@@ -95,8 +94,7 @@ async def register(request: Request,  name: str = Form(...),
     user = UserCreate(name=name, email=email, password=password, role=role)
     existing = db.query(User).filter(User.email == user.email).first()
     if existing:
-        return templates.TemplateResponse("register.html", {
-            "request": request,
+        return templates.TemplateResponse(request,"register.html", {
             "error": "Email already registered!"
         })
     hashed_pw = hash_password(user.password)
@@ -113,7 +111,7 @@ async def register(request: Request,  name: str = Form(...),
 
 @app.get("/login", response_class=HTMLResponse)
 async def login(request: Request):
-    return templates.TemplateResponse("login.html",{"request": request, "success": "User registered successfully!"})
+    return templates.TemplateResponse(request,"login.html",{"success": "User registered successfully!"})
     
 
 @app.post("/login", response_class=HTMLResponse)
@@ -126,7 +124,7 @@ async def login(request: Request,
     user = UserLogin(email=email, password=password)
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not verify_password(user.password, db_user.password_hash):
-        return templates.TemplateResponse("login.html",{"request": request, "error": "Invalid Credentials"})
+        return templates.TemplateResponse(request, "login.html",{"error": "Invalid Credentials"})
     token = create_token({"sub": db_user.email})
     response = RedirectResponse(url="/dashboard", status_code=303)
     response.set_cookie(key="access_token", value=token, httponly=True, secure=False)  # Use secure=True in production
@@ -137,11 +135,10 @@ async def login(request: Request,
 async def dashboard(request: Request,db: Session = Depends(get_db)):
     user = get_current_user(request,db)
     context = {
-        "request": request,
         "user": user,
         "success": "Login successful!"
     }
-
+    
     if user.role == "doctor":
         context.update({
             "total_patients": db.query(Appointment).filter(Appointment.doctor_id == user.id).count(),
@@ -158,7 +155,7 @@ async def dashboard(request: Request,db: Session = Depends(get_db)):
             "cancel_bookings": db.query(Appointment).filter(Appointment.patient_id == user.id,Appointment.status == "cancelled").count(),
                 
         })
-    return templates.TemplateResponse("dashboard.html", context)
+    return templates.TemplateResponse(request, "dashboard.html", context)
            
 
 @app.get("/doctor/schedule", response_class=HTMLResponse)
@@ -169,7 +166,6 @@ def schedule_form(request:Request,db: Session = Depends(get_db)):
 
     # fetch doctors list
     context = {
-        "request": request,
         "user": user,
         "doctors": doctors,
     }
@@ -191,7 +187,7 @@ def schedule_form(request:Request,db: Session = Depends(get_db)):
             "cancel_bookings": db.query(Appointment).filter(Appointment.patient_id == user.id,Appointment.status == "cancelled").count(),
                 
         })
-    return templates.TemplateResponse("doctor_schedule.html",context)
+    return templates.TemplateResponse(request, "doctor_schedule.html", context)
 
 @app.post("/doctor/schedule")
 def schedule_post(
@@ -232,7 +228,7 @@ def appointment_form(
 
     # fetch doctors list
     context = {
-        "request": request,
+       
         "action": action.capitalize(),
         "user": user,
         "doctors": doctors,
@@ -255,7 +251,7 @@ def appointment_form(
             "cancel_bookings": db.query(Appointment).filter(Appointment.patient_id == user.id,Appointment.status == "cancelled").count(),
                 
         })
-    return templates.TemplateResponse("book_appointment.html", context)
+    return templates.TemplateResponse(request, "book_appointment.html",context)
 
 
 @app.post("/appointment/{action}")
@@ -312,8 +308,7 @@ def view_appointments(request: Request, db: Session = Depends(get_db)):
             .with_entities(Appointment.id, User.name.label("patient_name"), Appointment.date, Appointment.time, Appointment.status)
             .all()
         )
-        return templates.TemplateResponse("appointments.html", {
-            "request": request,
+        return templates.TemplateResponse(request, "appointments.html", {
             "appointments": [{"id": a.id, "patient_name": a.patient_name, "doctor_name": user.name, "date": a.date, "time": a.time, "status": a.status} for a in appointments], "user": user
         })
         
@@ -325,8 +320,7 @@ def view_appointments(request: Request, db: Session = Depends(get_db)):
             .with_entities(Appointment.id, User.name.label("doctor_name"), Appointment.date, Appointment.time, Appointment.status)
             .all()
         )
-        return templates.TemplateResponse("appointments.html", {
-            "request": request,
+        return templates.TemplateResponse(request, "appointments.html", {
             "appointments": [{"id": a.id,"patient_name": user.name, "doctor_name": a.doctor_name, "date": a.date, "time": a.time,"status": a.status} for a in appointments], "user": user
         })
     else:
@@ -369,7 +363,7 @@ def cancel_appointment(appointment_id: int, request: Request, db: Session = Depe
 def doctor_schedule(request:Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     scheduled = db.query(DoctorSchedule).filter(DoctorSchedule.doctor_id == user.id).all()
-    return templates.TemplateResponse("view_schedule.html", {"request": request, "user": user, "scheduled": scheduled})
+    return templates.TemplateResponse(request, "view_schedule.html", {"user": user, "scheduled": scheduled})
 
 
 @app.get("/logout")
