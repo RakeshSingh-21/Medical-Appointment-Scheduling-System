@@ -160,13 +160,39 @@
         }
 
         /* Card Styles */
+        .dashboard {
+            display: flex;
+            /* flex-direction: column; */
+            /* Stack cards vertically */
+            /* gap: 20px; */
+            /* Space between the cards */
+            justify-content: center;
+            /* Center the cards in the row */
+            gap: 20px;
+            /* Space between cards */
+            flex-wrap: wrap;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            /* Inside content vertical */
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
+        }
+
         .card {
             border: none;
-            /* Remove default border */
             border-radius: 8px;
-            /* Rounded corners */
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            /* Subtle shadow for depth */
+            width: 270px;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .card-title {
@@ -186,6 +212,7 @@
         /* Row Styles */
         .row {
             margin-bottom: 1.5rem;
+
             /* Space between rows */
         }
 
@@ -300,47 +327,47 @@
     <div class="sidebar" id="sidebar">
         <ul class="sidebar-menu">
             <li class="sidebar-item active" data-page="dashboard">
-                <a href="dashboard" class="sidebar-link">
-                    <span class="sidebar-icon">🏠</span>
+                <a href="/dashboard" class="sidebar-link">
+                    <span class="sidebar-icon"></span>
                     <span>Dashboard</span>
                 </a>
             </li>
             {% if user.role == "doctor" %}
             <li class="sidebar-item" data-page="manage_schedule">
-                <a href="#" class="sidebar-link">
-                    <span class="sidebar-icon">ℹ️</span>
+                <a href="/doctor/schedule" class="sidebar-link">
+                    <span class="sidebar-icon"></span>
                     <span>Manage Schedule</span>
                 </a>
             </li>
             <li class="sidebar-item" data-page="view_schedule">
                 <a href="/view/schedule" class="sidebar-link">
-                    <span class="sidebar-icon">ℹ️</span>
+                    <span class="sidebar-icon"></span>
                     <span>View Schedule</span>
                 </a>
             </li>
             {% elif user.role == "patient" %}
             <li class="sidebar-item" data-page="book_appointment">
                 <a href="/appointment/book" class="sidebar-link">
-                    <span class="sidebar-icon">🎨</span>
+                    <span class="sidebar-icon"></span>
                     <span>Book Appointment</span>
                 </a>
             </li>
             <li class="sidebar-item" data-page="cancel_appointment">
                 <a href="/appointment/cancel" class="sidebar-link">
-                    <span class="sidebar-icon">📧</span>
+                    <span class="sidebar-icon"></span>
                     <span>Cancel Appointment</span>
                 </a>
             </li>
             <li class="sidebar-item" data-page="reschedule_appointment">
                 <a href="/appointment/reschedule" class="sidebar-link">
-                    <span class="sidebar-icon">📧</span>
+                    <span class="sidebar-icon"></span>
                     <span>Reschudle Appointment</span>
                 </a>
             </li>
             {% endif %}
             <li class="sidebar-item" data-page="view_appointment">
                 <a href="/appointments" class="sidebar-link">
-                    <span class="sidebar-icon">🛠️</span>
+                    <span class="sidebar-icon"></span>
                     <span>View Appointment</span>
                 </a>
             </li>
@@ -348,14 +375,14 @@
         {% if user.role == "doctor" %}
         <div class="sidebar-item" style="margin-top: 285px;">
             <a href="/logout" class="sidebar-link">
-                <span class="sidebar-icon">🚪</span>
+                <span class="sidebar-icon"></span>
                 <span>Logout</span>
             </a>
         </div>
         {% elif user.role == "patient" %}
         <div class="sidebar-item" style="margin-top: 215px;">
             <a href="/logout" class="sidebar-link">
-                <span class="sidebar-icon">🚪</span>
+                <span class="sidebar-icon"></span>
                 <span>Logout</span>
             </a>
         </div>
@@ -373,21 +400,18 @@
                 <!-- Main Dashboard -->
                 <!-- <div class="col-md-9 main-content" id="main-content"> -->
                 {% if user.role == "doctor" %}
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="card bg-info text-white">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">Total Patients</h5>
-                                <p class="card-text">{{ total_patients }}</p>
-                            </div>
+                <div class="dashboard">
+                    <div class="card bg-info text-white">
+                        <div class="card-content">
+                            <h5 class="card-title">Total Patients</h5>
+                            <p class="card-text">{{ total_patients }}</p>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card bg-success text-white">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">Confirmed Bookings</h5>
-                                <p class="card-text">{{ confirmed_bookings }}</p>
-                            </div>
+
+                    <div class="card bg-success text-white">
+                        <div class="card-content">
+                            <h5 class="card-title">Confirmed Bookings</h5>
+                            <p class="card-text">{{ confirmed_bookings }}</p>
                         </div>
                     </div>
                 </div>
@@ -414,24 +438,22 @@
                     </tbody>
                 </table>
                 {% elif user.role == "patient" %}
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="card bg-info text-white">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">Cancel Appointment</h5>
-                                <p class="card-text">{{ cancel_bookings }}</p>
-                            </div>
+                <div class="dashboard">
+                    <div class="card bg-info text-white">
+                        <div class="card-content">
+                            <h5 class="card-title">Cancel Appointment</h5>
+                            <p class="card-text">{{ cancel_bookings }}</p>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card bg-success text-white">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">Confirmed Bookings</h5>
-                                <p class="card-text">{{ my_bookings }}</p>
-                            </div>
+
+                    <div class="card bg-success text-white">
+                        <div class="card-content">
+                            <h5 class="card-title">Confirmed Bookings</h5>
+                            <p class="card-text">{{ my_bookings }}</p>
                         </div>
                     </div>
                 </div>
+
 
                 <h4>Confirmed Appointment by Doctor</h4>
                 <table class="table table-bordered text-center">

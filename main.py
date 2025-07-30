@@ -144,12 +144,12 @@ async def dashboard(request: Request,db: Session = Depends(get_db)):
 
     if user.role == "doctor":
         context.update({
-            "total_patients": db.query(Appointment).count(),
+            "total_patients": db.query(Appointment).filter(Appointment.doctor_id == user.id).count(),
             "confirmed_bookings": db.query(Appointment)
                 .filter(Appointment.doctor_id == user.id, Appointment.status == "confirmed")
                 .count(),
             "upcoming_appointments": db.query(User.name.label("patient_name"),Appointment.date, Appointment.time, Appointment.status).join(User, User.id == Appointment.patient_id).filter(Appointment.doctor_id == user.id, Appointment.status == "confirmed").all()
-        })
+        })  
 
     elif user.role == "patient":
         context.update({
@@ -162,8 +162,36 @@ async def dashboard(request: Request,db: Session = Depends(get_db)):
            
 
 @app.get("/doctor/schedule", response_class=HTMLResponse)
-def schedule_form(request:Request):
-    return templates.TemplateResponse("doctor_schedule.html", {"request": request})
+def schedule_form(request:Request,db: Session = Depends(get_db)):
+
+    user = get_current_user(request, db)
+    doctors = db.query(User).filter(User.role == "doctor").all()
+
+    # fetch doctors list
+    context = {
+        "request": request,
+        "user": user,
+        "doctors": doctors,
+    }
+
+    if user.role == "doctor":
+        context.update({
+            "total_patients": db.query(Appointment).count(),
+            "confirmed_bookings": db.query(Appointment)
+                .filter(Appointment.doctor_id == user.id, Appointment.status == "confirmed")
+                .count(),
+            "upcoming_appointments": db.query(User.name.label("patient_name"),Appointment.date, Appointment.time, Appointment.status).join(User, User.id == Appointment.patient_id).filter(Appointment.doctor_id == user.id, Appointment.status == "confirmed").all()
+        })
+
+    elif user.role == "patient":
+        context.update({
+            
+            "my_bookings": db.query(Appointment).filter(Appointment.patient_id == user.id,Appointment.status == "confirmed").count(),
+            "confirmed_appointments": db.query(User.name.label("doctor_name"),Appointment.date, Appointment.time, Appointment.status).join(User, User.id == Appointment.doctor_id).filter(Appointment.patient_id == user.id, Appointment.status == "confirmed").all(),
+            "cancel_bookings": db.query(Appointment).filter(Appointment.patient_id == user.id,Appointment.status == "cancelled").count(),
+                
+        })
+    return templates.TemplateResponse("doctor_schedule.html",context)
 
 @app.post("/doctor/schedule")
 def schedule_post(
@@ -200,14 +228,34 @@ def appointment_form(
     user = get_current_user(request, db)
     if user.role != "patient":
         raise HTTPException(status_code=403, detail="Only patients can manage appointments")
+    doctors = db.query(User).filter(User.role == "doctor").all()
 
     # fetch doctors list
-    doctors = db.query(User).filter(User.role == "doctor").all()
-    return templates.TemplateResponse("book_appointment.html", {
+    context = {
         "request": request,
         "action": action.capitalize(),
-        "doctors": doctors
-    })
+        "user": user,
+        "doctors": doctors,
+    }
+
+    if user.role == "doctor":
+        context.update({
+            "total_patients": db.query(Appointment).count(),
+            "confirmed_bookings": db.query(Appointment)
+                .filter(Appointment.doctor_id == user.id, Appointment.status == "confirmed")
+                .count(),
+            "upcoming_appointments": db.query(User.name.label("patient_name"),Appointment.date, Appointment.time, Appointment.status).join(User, User.id == Appointment.patient_id).filter(Appointment.doctor_id == user.id, Appointment.status == "confirmed").all()
+        })
+
+    elif user.role == "patient":
+        context.update({
+            
+            "my_bookings": db.query(Appointment).filter(Appointment.patient_id == user.id,Appointment.status == "confirmed").count(),
+            "confirmed_appointments": db.query(User.name.label("doctor_name"),Appointment.date, Appointment.time, Appointment.status).join(User, User.id == Appointment.doctor_id).filter(Appointment.patient_id == user.id, Appointment.status == "confirmed").all(),
+            "cancel_bookings": db.query(Appointment).filter(Appointment.patient_id == user.id,Appointment.status == "cancelled").count(),
+                
+        })
+    return templates.TemplateResponse("book_appointment.html", context)
 
 
 @app.post("/appointment/{action}")
