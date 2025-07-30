@@ -16,6 +16,7 @@ from fastapi import status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
+
 #Create the database tables
 Base.metadata.create_all(bind=engine)
 
